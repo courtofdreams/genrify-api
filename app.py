@@ -135,7 +135,10 @@ def recommend_genre_api():
         print(e)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/healthcheck', methods=["GET"])
+def ping():
+    return jsonify({"message": "Pong!"}), 200
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(debug=True, port=80)
