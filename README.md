@@ -11,6 +11,12 @@ Note: This project is a part of Info 202 - Information Organization and Retrieva
 - Adjust recommendations based on artist popularity
 - Boost genres with matching prefixes, I co
 
+## APIs
+
+Genre Recommendation: POST /recommend-genre
+
+- It takes user data, a list of genres, the genre hierarchy, and precomputed genre vectors to generate genre recommendations, Then calculates the popularity of each genre based on user data. It identifies genres that the user has not yet explored, using TF-IDF and cosine similarity to find genres similar to those the user has explored. It adjusts the recommendations based on genre popularity and boosts genres with matching prefixes, Then returns the top N unique genre recommendations.
+
 ## Requirements
 
 - Python
@@ -40,15 +46,22 @@ Note: This project is a part of Info 202 - Information Organization and Retrieva
 ## API Endpoints
 
 ### `POST /recommend-genre`
+Note: I retrieved artist' followers just to use it to compared if its relevant to popularity or not, and it is relevant, so I use only popularity for the calculation.
 
 Request body:
 
 ```json
 {
-  "ArtistSpotifyID": {
+  "ArtistSpotifyID1": {
     "listeningCount": 1,
     "genres": ["edm", "pop dance", "progressive electro house"],
     "popularity": 77,
+    "follower": 3866287
+  },
+    "ArtistSpotifyID2": {
+    "listeningCount": 1,
+    "genres": ["k-pop", "pop dance"],
+    "popularity": 22,
     "follower": 3866287
   }
 }

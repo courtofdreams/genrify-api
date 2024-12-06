@@ -5,6 +5,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 CORS(app)
+vectorizer = TfidfVectorizer()
 
 # Function to read genres from file
 def read_genres(file_path):
@@ -25,7 +26,7 @@ def build_hierarchy(genres):
             hierarchy.setdefault(genre, [])
     return hierarchy
 
-def recommend_genres(user_data, genres, hierarchy, top_n=3):
+def recommend_genres(user_data, genres, hierarchy, genre_vectors, top_n=3):
     # Calculate genre popularity
     user_genre_popularity = {}
     for artist_data in user_data.values():
@@ -45,10 +46,6 @@ def recommend_genres(user_data, genres, hierarchy, top_n=3):
 
     # Identify undiscovered genres
     undiscovered_genres = [genre for genre in genres if genre not in explored_genres]
-
-    # Use TF-IDF for similarity calculation
-    vectorizer = TfidfVectorizer()
-    genre_vectors = vectorizer.fit_transform(genres)
 
     recommendations = []
     for explored_genre in explored_genres:
@@ -74,9 +71,9 @@ def recommend_genres(user_data, genres, hierarchy, top_n=3):
         weighted_recommendations.append((genre, weighted_score))
 
     # Debugging: Print scores for each genre
-    print("Debugging Weighted Recommendations:")
-    for genre, score in weighted_recommendations:
-        print(f"Genre: {genre}, Weighted Score: {score}")
+    # print("Debugging Weighted Recommendations:")
+    # for genre, score in weighted_recommendations:
+    #     print(f"Genre: {genre}, Weighted Score: {score}")
 
     # Sort and return top N unique recommendations
     weighted_recommendations = sorted(weighted_recommendations, key=lambda x: x[1], reverse=True)
@@ -113,7 +110,8 @@ def calculate_genre_popularity(user_data):
 file_path = "all_spotify_genres.txt"
 genres = read_genres(file_path)
 hierarchy = build_hierarchy(genres)
-
+# Use TF-IDF for similarity calculation
+genre_vectors = vectorizer.fit_transform(genres)
 # Flask API endpoint
 @app.route('/recommend-genre', methods=["POST"])
 def recommend_genre_api():
@@ -126,7 +124,7 @@ def recommend_genre_api():
             return jsonify({"error": "No data provided"}), 400
 
         # Recommend a genre
-        recommendation = recommend_genres(user_data, genres, hierarchy)
+        recommendation = recommend_genres(user_data, genres, hierarchy, genre_vectors)
         if recommendation:
             return jsonify({"genreRecommendation": recommendation}), 200
         else:
